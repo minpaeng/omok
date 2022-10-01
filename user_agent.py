@@ -1,30 +1,41 @@
 import numpy as np
 from omok import OmokState
-import random
-import copy
+from util import random_act
 
-DEPTH = 3
+DEPTH = 5
 
 
 def act(state: OmokState):
     if len(state.history) == 0:
         return 9, 9
 
-    # 생성된 좌표에 돌을 놓을 수 있을 때까지 반복?
-    while True:
-        prev_stone = state.history[-2:]  # 흑돌, 백돌
-        node = (state.game_board, prev_stone, 0)
-        # 노드 구성 : game_board, 이전 돌, cost
+    prev_stone = state.history[-2:]              # 흑돌, 백돌
+    node = (state.game_board, prev_stone)        # 노드 구성 : game_board, 이전 돌, cost
 
-        _, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), -1)
-        # v : value
-        # pos : 돌 위치
+    _, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), -1)
+    print(f"pos: {pos}")
 
-        x_pos, y_pos = pos[0], pos[1]
+    # v : value, pos : 돌 위치
+    x_pos, y_pos = pos[0], pos[1]
 
-        # state에서 생성된 좌표에 돌이 올려져 있는지 여부 체크
-        if state.is_valid_position(x_pos, y_pos):
-            break
+    # state에서 생성된 좌표에 돌이 올려져 있는지 여부 체크
+    if not state.is_valid_position(x_pos, y_pos):
+        x_min = x_pos - 1 if x_pos - 1 > 0 else 0
+        x_max = x_pos + 1 if x_pos + 1 < 18 else 18
+        x_pos = np.arange(x_min, x_max + 1)
+
+        y_min = y_pos - 1 if y_pos - 1 > 0 else 0
+        y_max = y_pos + 1 if y_pos + 1 < 18 else 18
+        y_pos = np.arange(y_min, y_max + 1)
+
+        next_stones = set()
+        [next_stones.add((x, y)) for x in x_pos for y in y_pos]
+
+        for x in next_stones:
+            if state.is_valid_position(x[0], x[1]):
+                return x[1], x[0]
+        print("rand!2222")
+        return random_act(state)
 
     return y_pos, x_pos
 
@@ -43,10 +54,10 @@ def alpha_beta_search(node, depth, a, b, player):
         pos = None
         for stone in stones:
             pos = stone
-            child_state = np.copy(state)  # deep copy
-            child_state[stone[0]][stone[1]] = 1  # 상대는 어떻게
+            child_state = np.copy(state)
+            child_state[stone[0]][stone[1]] = 1
             prev_stone.append(stone)
-            child_node = (child_state, prev_stone, 0)
+            child_node = (child_state, prev_stone)
             v = max(v, alpha_beta_search(child_node, depth - 1, a, b, -1)[0])
             a = max(a, v)
             if b <= a:
@@ -62,9 +73,9 @@ def alpha_beta_search(node, depth, a, b, player):
         for stone in stones:
             pos = stone
             child_state = np.copy(state)
-            child_state[stone[0]][stone[1]] = -1  # 백 이라면
+            child_state[stone[0]][stone[1]] = -1
             prev_stone.append(stone)
-            child_node = (child_state, prev_stone, 0)
+            child_node = (child_state, prev_stone)
 
             v = min(v, alpha_beta_search(child_node, depth - 1, a, b, 1)[0])
             b = min(b, v)
@@ -73,6 +84,20 @@ def alpha_beta_search(node, depth, a, b, player):
                 break
 
         return v, pos
+
+
+def evaluate2(node):
+    # o o o   o 이런식으로 놓인 패턴일 때 빈공간 좌표의 점수를 크게 줘야 함
+    # o o o o   이런식으로 놓인 패턴(가로, 세로, 대각선 방향 모두 고려)일 때 빈공간 좌표의 점수를 크게 줘야 함
+    state = node[0]
+    score = 0
+    #
+    # for row in range(19):
+    #     for col in range(19):
+    #         if state[row][col] == 1:
+    #             if row
+
+    return score, None
 
 
 def evaluate(node):
@@ -113,8 +138,11 @@ def get_next_stones(node):
     state = node[0]
     next_stones = set()
     cur_stone = node[1]
+
+    avail_stones = np.where(state == 0)
+    avail_stones = set([(x, y) for x, y in zip(avail_stones[1], avail_stones[0])])
+
     # 내가 최근에 둔 돌
-    print(cur_stone)
     x_min = cur_stone[0][0] - 1 if cur_stone[0][0] - 1 > 0 else 0
     x_max = cur_stone[0][0] + 1 if cur_stone[0][0] + 1 < 18 else 18
     x_pos = np.arange(x_min, x_max + 1)
@@ -122,9 +150,6 @@ def get_next_stones(node):
     y_min = cur_stone[0][1] - 1 if cur_stone[0][1] - 1 > 0 else 0
     y_max = cur_stone[0][1] + 1 if cur_stone[0][1] + 1 < 18 else 18
     y_pos = np.arange(y_min, y_max + 1)
-
-    avail_stones = np.where(state == 0)
-    avail_stones = set([(x, y) for x, y in zip(avail_stones[0], avail_stones[1])])
 
     [next_stones.add((x, y)) for x in x_pos for y in y_pos]
 
@@ -140,57 +165,10 @@ def get_next_stones(node):
     [next_stones.add((x, y)) for x in x_pos for y in y_pos]
 
     next_stones = next_stones & avail_stones
+
+    if next_stones == 0:
+        print("rand!")
+        rand_x, rand_y = random_act(state)
+        next_stones.add((rand_x, rand_y))
+
     return list(next_stones)
-
-# def act(state: OmokState):
-#     sum = 0
-#     for i in range(100000000000):  # 강제 timeout
-#         sum = i * i
-#     # DO something
-#
-#     while True:
-#         # print(state.history)
-#
-#         # 랜덤 두기
-#         y_pos, x_pos = np.random.randint(19), np.random.randint(19)
-#
-#         # state에서 생성된 좌표에 돌이 올려져 있는지 여부 체크
-#         if state.is_valid_position(x_pos, y_pos):
-#             break
-#
-#     return y_pos, x_pos
-
-
-# class AlphaBetaSearch:
-#     def __init__(self):
-#         self.minus_inf = -987654321
-#         self.plus_inf = 987654321
-#         self.x_pos = 0
-#         self.y_pos = 0
-#
-#     def alpha_beta_search(self, state: OmokState):
-#         v = self.max_value(state, self.minus_inf, self.plus_inf)
-#         # state에서 취할 수 있는 action 집합 중 v를 포함하는 action 리턴하는 코드 작성
-#
-#         return self.y_pos, self.x_pos
-#
-#     def max_value(self, state: OmokState, a, b):
-#         if state.check_status() == 1:
-#             return self.utility(state)
-#
-#         # 1. state에 대해, 검은 돌을 둘 수 있는 모든 action들을 찾음
-#         # 2. actions 중 하나의 action에 대해 min_value를 찾음 - 이 때 알파베타프루닝 적용
-#         pass
-#
-#     def min_value(self, state: OmokState, a, b):
-#         # 1. state에 대해, 흰 돌을 둘 수 있는 모든 action들을 찾음
-#         # 2. actions 집합의 원소들을 하나하나 탐색하며 utility를 구함 - 가장 작은 값을 계속해서 기록
-#         pass
-#
-#     def utility(self, state: OmokState):
-#         # 1. 빈 공간을 모두 흑돌로 채운 후 모든 좌표를 살펴보며 가로, 세로, 대각선 방향으로 오목이 완성되는 수를 카운트
-#
-#         # 2. 빈 공간을 모두 백돌로 채운 후 모든 좌표를 살펴보며 가로, 세로, 대각선 방향으로 오목이 완성되는 수를 카운트
-#
-#         # (1. - 2.)를 리턴
-#         pass
