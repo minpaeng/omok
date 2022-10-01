@@ -103,7 +103,7 @@ def evaluate2(node):
 def evaluate(node):
     # o o o   o 이런식으로 놓인 패턴일 때 빈공간 좌표의 점수를 크게 줘야 함
     # o o o o   이런식으로 놓인 패턴(가로, 세로, 대각선 방향 모두 고려)일 때 빈공간 좌표의 점수를 크게 줘야 함
-    x_pos, y_pos = node[1][-1]
+    x_pos, y_pos = node[1][0]
     # print("pos")
     # print(x_pos, y_pos)
 
