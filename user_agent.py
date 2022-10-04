@@ -9,11 +9,10 @@ def act(state: OmokState):
     if len(state.history) == 0:
         return 9, 9
 
-    prev_stone = state.history[-5:]
+    prev_stone = state.history[-7:]
     node = (state.game_board, prev_stone)        # 노드 구성 : game_board, 이전 돌, cost
 
-    _, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), -1)
-
+    v, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), 1, None)
     # v : value, pos : 돌 위치
     x_pos, y_pos = pos[0], pos[1]
 
@@ -41,9 +40,9 @@ def act(state: OmokState):
     return y_pos, x_pos
 
 
-def alpha_beta_search(node, depth, a, b, player):
+def alpha_beta_search(node, depth, a, b, player, start):
     if depth == 0:  # 깊이가 0이면 탐색 종료
-        return evaluate2(node)
+        return evaluate2(node, start)
         # return evaluate(node)
 
     state = node[0]
@@ -55,10 +54,12 @@ def alpha_beta_search(node, depth, a, b, player):
         pos = stones[0]
         for stone in stones:
             child_state = np.copy(state)
-            child_state[stone[1]][stone[0]] = -1
+            child_state[stone[1]][stone[0]] = 1
             prev_stone = [node[1][-1], stone]
             child_node = (child_state, prev_stone)
-            child_value, child_pos = alpha_beta_search(child_node, depth - 1, a, b, -1)
+            if depth == 3:
+                start = stone
+            child_value, child_pos = alpha_beta_search(child_node, depth - 1, a, b, -1, start)
             if v < child_value:
                 v = child_value
                 pos = child_pos
@@ -74,11 +75,13 @@ def alpha_beta_search(node, depth, a, b, player):
         for stone in stones:
             pos = stone
             child_state = np.copy(state)
-            child_state[stone[1]][stone[0]] = 1
+            child_state[stone[1]][stone[0]] = -1
             prev_stone = [node[1][-1], stone]
             child_node = (child_state, prev_stone)
-            child_value, child_pos = alpha_beta_search(child_node, depth - 1, a, b, -1)
-            if v < child_value:
+            if depth == 3:
+                start = stone
+            child_value, child_pos = alpha_beta_search(child_node, depth - 1, a, b, -1, start)
+            if v > child_value:
                 v = child_value
                 pos = child_pos
             b = min(b, v)
@@ -89,7 +92,7 @@ def alpha_beta_search(node, depth, a, b, player):
         return v, pos
 
 
-def evaluate2(node):
+def evaluate2(node, start):
     # o o o   o 이런식으로 놓인 패턴일 때 빈공간 좌표의 점수를 크게 줘야 함
     # o o o o   이런식으로 놓인 패턴(가로, 세로, 대각선 방향 모두 고려)일 때 빈공간 좌표의 점수를 크게 줘야 함
     score = 0
@@ -97,108 +100,151 @@ def evaluate2(node):
     white_cnt = 0
 
     state = node[0]
-    x_pos, y_pos = node[1][-1]
-    if state[y_pos][x_pos] == -1:
-        x_pos, y_pos = node[1][-2]
 
-    x_min = x_pos - 3 if x_pos - 3 > 0 else 0
-    x_max = x_pos + 3 if x_pos + 3 < 18 else 18
+    x_start, y_start = start
+    # if state[start[1]][start[0]] == 1:
+    #     print("dddddddddddddddddddddddddddddd")
 
-    y_min = y_pos - 3 if y_pos - 3 > 0 else 0
-    y_max = y_pos + 3 if y_pos + 3 < 18 else 18
+    x_min = start[0] - 4 if start[0] - 4 > 0 else 0
+    x_max = start[0] + 4 if start[0] + 4 < 18 else 18
+
+    y_min = start[1] - 4 if start[1] - 4 > 0 else 0
+    y_max = start[1] + 4 if start[1] + 4 < 18 else 18
+
+    if y_start + 1 < 19 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start] == state[y_start + 1][x_start] == 1:
+            black_cnt += 8
+    if y_start + 1 < 19 and y_start - 2 >= 0:
+        if state[y_start - 2][x_start] == state[y_start - 1][x_start] == state[y_start + 1][x_start] == 1:
+            black_cnt += 5
+    if y_start + 2 < 19 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start] == 1:
+            black_cnt += 5
+    if y_start + 1 < 19:
+        if state[y_start][x_start] == state[y_start + 1][x_start]:
+            black_cnt += 9
+    if y_start + 2 < 19:
+        if state[y_start][x_start] == state[y_start + 2][x_start]:
+            black_cnt += 8
+    if y_start + 3 < 19:
+        if state[y_start][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start]:
+            black_cnt += 5
+    if y_start + 3 < 19:
+        if state[y_start][x_start] == state[y_start + 1][x_start] == state[y_start + 3][x_start]:
+            black_cnt += 5
+    if y_start - 1 < 19:
+        if state[y_start][x_start] == state[y_start + 1][x_start]:
+            black_cnt += 9
+    if y_start - 2 < 19:
+        if state[y_start][x_start] == state[y_start + 1][x_start]:
+            black_cnt += 9
+    if y_start - 3 < 19:
+        if state[y_start][x_start] == state[y_start - 3][x_start]:
+            black_cnt += 5
+    if y_start - 3 < 19:
+        if state[y_start][x_start] == state[y_start - 3][x_start] == state[y_start - 2][x_start]:
+            black_cnt += 5
+    if y_start - 3 >= 0:
+        if state[y_start][x_start] == state[y_start - 3][x_start] == state[y_start - 1][x_start]:
+            black_cnt += 5
+    if y_start - 2 >= 0:
+        if state[y_start][x_start] == state[y_start - 1][x_start] == state[y_start - 2][x_start]:
+            black_cnt += 8
+    if y_start - 2 >= 0:
+        if state[y_start][x_start] == state[y_start - 2][x_start]:
+            black_cnt += 8
+    if y_start + 3 < 19:
+        if state[y_start][x_start] == state[y_start + 1][x_start] == state[y_start + 3][x_start]:
+            black_cnt += 5
+
+    if x_start + 1 < 19:
+        if state[y_start][x_start] == state[y_start][x_start + 1]:
+            black_cnt += 9
+    if x_start - 1 < 19:
+        if state[y_start][x_start] == state[y_start][x_start - 1]:
+            black_cnt += 8
+    if x_start + 2 < 19:
+        if state[y_start][x_start] == state[y_start][x_start + 1] == state[y_start][x_start + 2]:
+            black_cnt += 8
+    if x_start - 2 > 0:
+        if state[y_start][x_start] == state[y_start][x_start - 1] == state[y_start][x_start - 2]:
+            black_cnt += 8
+    if x_start + 1 < 19 and x_start - 1 > 0:
+        if state[y_start][x_start] == state[y_start][x_start + 1] == state[y_start][x_start - 1]:
+            black_cnt += 8
+    if x_start + 3 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] == 1:
+            black_cnt += 5
+    if x_start + 2 < 19 and x_start - 1 > 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start + 1] == state[y_start][x_start + 2] == 1:
+            black_cnt += 5
+    if x_start + 1 < 19 and x_start - 2 > 0:
+        if state[y_start][x_start - 2] == state[y_start][x_start - 1] == state[y_start][x_start + 1] == 1:
+            black_cnt += 5
+    if x_start - 3 > 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] == 1:
+            black_cnt += 5
+    if x_start + 4 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
+                == state[y_start][x_start + 3] == state[y_start][x_start + 4] == 1:
+            black_cnt += 10
+    if x_start + 3 < 19 and x_start - 1 > 0:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
+                == state[y_start][x_start + 3] == state[y_start][x_start - 1] == 1:
+            black_cnt += 10
+    if x_start + 2 < 19 and x_start - 2 > 0:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
+                == state[y_start][x_start - 2] == state[y_start][x_start - 1] == 1:
+            black_cnt += 10
+    if x_start + 1 < 19 and x_start - 3 > 0:
+        if state[y_start][x_start + 1] == state[y_start][x_start - 3] \
+                == state[y_start][x_start - 2] == state[y_start][x_start - 1] == 1:
+            black_cnt += 10
+    if x_start - 4 > 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] \
+                == state[y_start][x_start - 3] == state[y_start][x_start - 4] == 1:
+            black_cnt += 10
 
     # 상하좌우대각선 -3, +3로 cost += 검정돌
     looking = state[y_min:y_max + 1, x_min:x_max + 1]
-    score += len(np.where(looking == 1)[0])
+    score += len(np.where(looking == 1)[0]) * 3
 
     if y_min + 1 < 19:
         if state[y_min][x_min] == state[y_min + 1][x_min]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if y_min + 2 < 19:
         if state[y_min + 1][x_min] == state[y_min + 2][x_min]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if y_min + 3 < 19:
         if state[y_min + 2][x_min] == state[y_min + 3][x_min]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if y_min + 4 < 19:
         if state[y_min + 3][x_min] == state[y_min + 4][x_min]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if y_min + 5 < 19:
         if state[y_min + 4][x_min] == state[y_min + 5][x_min]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if y_min + 6 < 19:
         if state[y_min + 5][x_min] == state[y_min + 6][x_min]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if x_min + 1 < 19:
         if state[y_min][x_min] == state[y_min][x_min + 1]:
-            black_cnt = black_cnt + 10
+            black_cnt = black_cnt + 5
     if x_min + 2 < 19:
-        if state[y_min + 1][x_min] == state[y_min + 1][x_min + 2]:
-            black_cnt = black_cnt + 10
+        if state[y_min][x_min + 1] == state[y_min][x_min + 2]:
+            black_cnt = black_cnt + 5
     if x_min + 3 < 19:
-        if state[y_min + 2][x_min] == state[y_min + 2][x_min + 3]:
-            black_cnt = black_cnt + 10
+        if state[y_min][x_min + 2] == state[y_min][x_min + 3]:
+            black_cnt = black_cnt + 5
     if x_min + 4 < 19:
-        if state[y_min + 3][x_min] == state[y_min + 3][x_min + 4]:
-            black_cnt = black_cnt + 10
+        if state[y_min][x_min + 3] == state[y_min][x_min + 4]:
+            black_cnt = black_cnt + 5
     if x_min + 5 < 19:
-        if state[y_min + 4][x_min] == state[y_min + 4][x_min + 5]:
-            black_cnt = black_cnt + 10
+        if state[y_min][x_min + 4] == state[y_min][x_min + 5]:
+            black_cnt = black_cnt + 5
     if x_min + 6 < 19:
-        if state[y_min + 5][x_min] == state[y_min][x_min + 6]:
-            black_cnt = black_cnt + 10
-
-    for y in range(y_min + 2, y_max - 1):
-        for x in range(x_min + 2, x_max - 1):
-            if state[y-2][x-2] == state[y-1][x-1] == state[y][x] == state[y+1][x+1] == state[y+2][x+2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y][x] == state[y+1][x-1] == state[y+2][x-2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x-2] == state[y-1][x-1] == state[y][x] == state[y+1][x+1] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y][x] == state[y+1][x-1] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x-2] == state[y-1][x-1] == state[y][x] == state[y+2][x+2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y][x] == state[y+2][x-2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-1][x-1] == state[y][x] == state[y+1][x+1] == state[y+2][x+2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-1][x+1] == state[y][x] == state[y+1][x-1] == state[y+2][x-2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x-2] == state[y-1][x-1] == state[y+1][x+1] == state[y+2][x+2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y+1][x-1] == state[y+2][x-2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x-2] == state[y][x] == state[y+1][x+1] == state[y+2][x+2] == 1:
-                black_cnt = black_cnt + 10
-            if state[y-2][x+2] == state[y][x] == state[y+1][x-1] == state[y+2][x-2] == 1:
-                black_cnt = black_cnt + 10
-
-            if state[y-2][x-2] == state[y-1][x-1] == state[y][x] == state[y+1][x+1] == state[y+2][x+2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y][x] == state[y+1][x-1] == state[y+2][x-2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-1][x-1] == state[y][x] == state[y+1][x+1] == state[y+2][x+2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-1][x+1] == state[y][x] == state[y+1][x-1] == state[y+2][x-2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x-2] == state[y][x] == state[y+1][x+1] == state[y+2][x+2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x+2] == state[y][x] == state[y+1][x-1] == state[y+2][x-2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x-2] == state[y-1][x-1] == state[y][x] == state[y+1][x+1] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y][x] == state[y+1][x-1] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x-2] == state[y-1][x-1] == state[y+1][x+1] == state[y+2][x+2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y+1][x-1] == state[y+2][x-2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x-2] == state[y-1][x-1] == state[y][x] == state[y+2][x+2] == -1:
-                white_cnt = white_cnt + 10
-            if state[y-2][x+2] == state[y-1][x+1] == state[y][x] == state[y+2][x-2] == -1:
-                white_cnt = white_cnt + 10
+        if state[y_min][x_min + 5] == state[y_min][x_min + 6]:
+            black_cnt = black_cnt + 5
 
     score += (black_cnt + white_cnt)
     return score, None
