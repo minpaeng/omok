@@ -9,7 +9,7 @@ def act(state: OmokState):
     if len(state.history) == 0:
         return 9, 9
 
-    prev_stone = state.history[-3:]
+    prev_stone = state.history[-7:]
     node = (state.game_board, prev_stone)        # 노드 구성 : game_board, 이전 돌, cost
 
     v, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), 1, None)
@@ -146,23 +146,23 @@ def evaluate2(node, start):
     if x_start + 4 < 19:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start + 3] == state[y_start][x_start + 4] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if x_start + 3 < 19 and x_start - 1 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start + 3] == state[y_start][x_start - 1] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if x_start + 2 < 19 and x_start - 2 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start - 2] == state[y_start][x_start - 1] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if x_start + 1 < 19 and x_start - 3 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start - 3] \
                 == state[y_start][x_start - 2] == state[y_start][x_start - 1] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if x_start - 4 >= 0:
         if state[y_start][x_start - 1] == state[y_start][x_start - 2] \
                 == state[y_start][x_start - 3] == state[y_start][x_start - 4] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
 
     if y_start + 1 < 19:
         if state[y_start][x_start] == state[y_start + 1][x_start]:
@@ -180,7 +180,7 @@ def evaluate2(node, start):
         if state[y_start][x_start] == state[y_start + 1][x_start] == state[y_start - 1][x_start]:
             black_cnt += 100
     if y_start + 3 < 19:
-        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == 1:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == 1:
             black_cnt += 300
     if y_start + 2 < 19 and y_start - 1 > 0:
         if state[y_start - 1][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start] == 1:
@@ -194,23 +194,66 @@ def evaluate2(node, start):
     if y_start + 4 < 19:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start + 3][x_start] == state[y_start + 4][x_start] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if y_start + 3 < 19 and y_start - 1 > 0:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start + 3][x_start] == state[y_start - 1][x_start] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if y_start + 2 < 19 and y_start - 2 > 0:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start - 1][x_start] == state[y_start - 2][x_start] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if y_start + 1 < 19 and y_start - 3 > 0:
         if state[y_start + 1][x_start] == state[y_start - 3][x_start] \
                 == state[y_start - 2][x_start] == state[y_start - 1][x_start] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
     if y_start - 4 >= 0:
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] \
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == 1:
-            black_cnt += 1000
+            black_cnt += 50000
+
+    if x_start + 1 < 19 and y_start + 1 < 19:
+        if state[y_start + 1][x_start + 1] == 1:
+            black_cnt += 10
+    if x_start - 1 >= 0 and y_start + 1 < 19:
+        if state[y_start + 1][x_start - 1] == 1:
+            black_cnt += 10
+    if x_start - 1 >= 0 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start - 1] == 1:
+            black_cnt += 10
+    if x_start + 1 < 19 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start + 1] == 1:
+            black_cnt += 10
+    if x_start + 2 < 19 and y_start + 2 < 19:
+        if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == 1:
+            black_cnt += 100
+    if x_start - 2 >= 0 and y_start + 2 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == 1:
+            black_cnt += 100
+    if x_start - 2 >= 0 and y_start - 2 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == 1:
+            black_cnt += 100
+    if x_start + 2 < 19 and y_start - 2 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == 1:
+            black_cnt += 100
+    if x_start + 1 < 19 and y_start + 1 < 19 and x_start - 1 >= 0 and y_start - 1 >= 0:
+        if state[y_start + 1][x_start + 1] == state[y_start - 1][x_start - 1] == 1:
+            black_cnt += 100
+    if (x_start - 1 >= 0 and y_start + 1 < 19) and (x_start + 1 < 19 and y_start - 1 >= 0):
+        if state[y_start + 1][x_start - 1] == state[y_start - 1][x_start + 1] == 1:
+            black_cnt += 100
+    if x_start + 3 < 19 and y_start + 3 < 19:
+        if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == state[y_start + 3][x_start + 3] == 1:
+            black_cnt += 300
+    if x_start - 3 >= 0 and y_start + 3 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == 1:
+            black_cnt += 300
+    if x_start - 3 >= 0 and y_start - 3 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == state[y_start - 3][x_start - 3] == 1:
+            black_cnt += 300
+    if x_start + 3 < 19 and y_start - 3 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == 1:
+            black_cnt += 300
 
     # 흰 돌 견제 점수 - 검정보다 우선순위를 높게 둬야 함
     if x_start + 3 < 19:
@@ -246,8 +289,9 @@ def evaluate2(node, start):
                 == state[y_start][x_start - 3] == state[y_start][x_start - 4] == -1:
             black_cnt += 10000
 
-    if y_start + 3 < 19:
-        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1:
+    if y_start + 4 < 19:
+        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1\
+                and state[y_start + 4][x_start] != 1:
             black_cnt += 3000
     if y_start + 2 < 19 and y_start - 1 > 0:
         if state[y_start - 1][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
@@ -279,8 +323,25 @@ def evaluate2(node, start):
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == -1:
             black_cnt += 10000
 
+    if x_start + 4 < 19 and y_start + 4 < 19:
+        if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == state[y_start + 3][x_start + 3] == -1\
+                and state[y_start + 4][x_start + 4] != 1:
+            black_cnt += 3000
+    if x_start - 4 >= 0 and y_start + 4 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == -1\
+                and state[y_start + 4][x_start - 4] != 1:
+            black_cnt += 3000
+    if x_start - 4 >= 0 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == state[y_start - 3][x_start - 3] == -1\
+                and state[y_start - 4][x_start - 4] != 1:
+            black_cnt += 3000
+    if x_start + 4 < 19 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == -1\
+                and state[y_start - 4][x_start + 4] != 1:
+            black_cnt += 3000
+
     score += (black_cnt + white_cnt)
-    print(score)
+    # print(score)
     return score, None
 
 
