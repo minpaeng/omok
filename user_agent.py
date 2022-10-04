@@ -115,6 +115,7 @@ def evaluate2(node, start):
     looking = state[y_min:y_max + 1, x_min:x_max + 1]
     score += len(np.where(looking == 1)[0]) * 3
 
+    # 검정돌 점수
     if x_start + 1 < 19:
         if state[y_start][x_start] == state[y_start][x_start + 1]:
             black_cnt += 10
@@ -210,6 +211,73 @@ def evaluate2(node, start):
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] \
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == 1:
             black_cnt += 1000
+
+    # 흰 돌 견제 점수 - 검정보다 우선순위를 높게 둬야 함
+    if x_start + 3 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] == -1:
+            black_cnt += 3000
+    if x_start + 2 < 19 and x_start - 1 > 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start + 1] == state[y_start][x_start + 2] == -1:
+            black_cnt += 3000
+    if x_start + 1 < 19 and x_start - 2 > 0:
+        if state[y_start][x_start - 2] == state[y_start][x_start - 1] == state[y_start][x_start + 1] == -1:
+            black_cnt += 3000
+    if x_start - 3 >= 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] == -1:
+            black_cnt += 3000
+    if x_start + 4 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
+                == state[y_start][x_start + 3] == state[y_start][x_start + 4] == -1:
+            black_cnt += 10000
+    if x_start + 3 < 19 and x_start - 1 > 0:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
+                == state[y_start][x_start + 3] == state[y_start][x_start - 1] == -1:
+            black_cnt += 10000
+    if x_start + 2 < 19 and x_start - 2 > 0:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
+                == state[y_start][x_start - 2] == state[y_start][x_start - 1] == -1:
+            black_cnt += 10000
+    if x_start + 1 < 19 and x_start - 3 > 0:
+        if state[y_start][x_start + 1] == state[y_start][x_start - 3] \
+                == state[y_start][x_start - 2] == state[y_start][x_start - 1] == -1:
+            black_cnt += 10000
+    if x_start - 4 >= 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] \
+                == state[y_start][x_start - 3] == state[y_start][x_start - 4] == -1:
+            black_cnt += 10000
+
+    if y_start + 3 < 19:
+        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1:
+            black_cnt += 3000
+    if y_start + 2 < 19 and y_start - 1 > 0:
+        if state[y_start - 1][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
+            black_cnt += 3000
+    if y_start + 1 < 19 and y_start - 2 > 0:
+        if state[y_start - 2][x_start] == state[y_start - 1][x_start] == state[y_start + 1][x_start] == -1:
+            black_cnt += 3000
+    if y_start - 3 >= 0:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] == -1:
+            black_cnt += 3000
+    if y_start + 4 < 19:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
+                == state[y_start + 3][x_start] == state[y_start + 4][x_start] == -1:
+            black_cnt += 10000
+    if y_start + 3 < 19 and y_start - 1 > 0:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
+                == state[y_start + 3][x_start] == state[y_start - 1][x_start] == -1:
+            black_cnt += 10000
+    if y_start + 2 < 19 and y_start - 2 > 0:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
+                == state[y_start - 1][x_start] == state[y_start - 2][x_start] == -1:
+            black_cnt += 10000
+    if y_start + 1 < 19 and y_start - 3 > 0:
+        if state[y_start + 1][x_start] == state[y_start - 3][x_start] \
+                == state[y_start - 2][x_start] == state[y_start - 1][x_start] == -1:
+            black_cnt += 10000
+    if y_start - 4 >= 0:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] \
+                == state[y_start - 3][x_start] == state[y_start - 4][x_start] == -1:
+            black_cnt += 10000
 
     score += (black_cnt + white_cnt)
     print(score)
