@@ -32,7 +32,7 @@ def act(state: OmokState):
         for x in next_stones:
             if state.is_valid_position(x[0], x[1]):
                 return x[1], x[0]
-        print("random selected.")
+        # print("random selected.")
 
         # 상하좌우에도 놓여있다면 랜덤으로 놓기
         return random_act(state)
@@ -531,7 +531,7 @@ def get_next_stones(node):
 
     # 아예 비어있다면 랜덤으로 하나 고르기
     if next_stones == 0:
-        print("random selected.")
+        # print("random selected.")
         rand_x, rand_y = random_act(state)
         next_stones.add((rand_x, rand_y))
 
