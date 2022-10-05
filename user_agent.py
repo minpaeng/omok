@@ -390,36 +390,36 @@ def evaluate(node, start):
 
     # 무조건 이기는 경우? 방어
     if y_start + 3 < 19 and x_start + 2 < 19:
-        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] \
-                == state[y_start][x_start + 1] == state[y_start][x_start + 2] == -1:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start][x_start + 1] == -1\
+                and state[y_start + 3][x_start] == state[y_start][x_start + 2] != 1:
             score += 1000
     if y_start - 3 >= 0 and x_start + 2 < 19:
-        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] \
-                == state[y_start][x_start + 1] == state[y_start][x_start + 2] == -1:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start][x_start + 1] == -1 \
+                and state[y_start - 3][x_start] == state[y_start][x_start + 2] != 1:
             score += 1000
     if y_start + 3 < 19 and x_start - 2 >= 0:
-        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] \
-                == state[y_start][x_start - 1] == state[y_start][x_start - 2] == -1:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start][x_start - 1] == -1\
+                and state[y_start + 3][x_start] == state[y_start][x_start - 2] != 1:
             score += 1000
     if y_start - 3 >= 0 and x_start - 2 >= 0:
-        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] \
-                == state[y_start][x_start - 1] == state[y_start][x_start - 2] == -1:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start][x_start - 1] == -1\
+                and state[y_start - 3][x_start] == state[y_start][x_start - 2] != 1:
             score += 1000
     if y_start + 2 < 19 and x_start + 3 < 19:
-        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] \
-                == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start + 1][x_start] == -1 \
+                and state[y_start + 2][x_start] == state[y_start][x_start + 3] == -1:
             score += 1000
     if y_start + 2 < 19 and x_start - 3 >= 0:
-        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] \
-                == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start + 1][x_start] == -1\
+                and state[y_start + 2][x_start] == state[y_start][x_start - 3] != 1:
             score += 1000
     if y_start - 2 >= 0 and x_start + 3 < 19:
-        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] \
-                == state[y_start - 1][x_start] == state[y_start - 2][x_start] == -1:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start - 1][x_start] == -1\
+                and state[y_start - 2][x_start] == state[y_start][x_start + 3] == -1:
             score += 1000
     if y_start - 2 >= 0 and x_start - 3 >= 0:
-        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] \
-                == state[y_start - 1][x_start] == state[y_start - 2][x_start] == -1:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start - 1][x_start] == -1\
+                and state[y_start - 2][x_start] == state[y_start][x_start - 3] != 1:
             score += 1000
 
     if y_start + 2 < 19 and x_start + 2 < 19:
@@ -460,6 +460,10 @@ def evaluate(node, start):
         if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == state[y_start + 3][x_start + 3] == -1\
                 and state[y_start + 4][x_start + 4] != 1:
             score += 3000
+    if x_start - 4 >= 0 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == state[y_start - 3][x_start - 3] == -1\
+                and state[y_start - 4][x_start - 4] != 1:
+            score += 3000
     if x_start + 3 < 19 and y_start + 3 < 19 and x_start - 1 >= 0 and y_start - 1 >= 0:
         if state[y_start - 1][x_start - 1] == state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == -1\
                 and state[y_start + 3][x_start + 3] != 1:
@@ -483,8 +487,18 @@ def evaluate(node, start):
             score += 5000
     if x_start + 2 < 19 and y_start + 2 < 19 and x_start - 2 >= 0 and y_start - 2 >= 0:
         if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == \
-                state[y_start + 1][x_start + 1] == state[y_start + 1][x_start + 1] == -1:
-            score += 5000
+                state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == -1:
+            if x_start + 3 < 19 and y_start + 3 < 19 and state[y_start + 3][x_start + 3] != 1:
+                score += 5000
+            if x_start - 3 >= 0 and y_start - 3 >= 0 and state[y_start - 3][x_start - 3] != 1:
+                score += 5000
+    if x_start - 2 >= 0 and y_start + 2 < 19 and x_start + 2 < 19 and y_start - 2 >= 0:
+        if state[y_start + 2][x_start - 2] == state[y_start + 1][x_start - 1] == \
+                state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == -1:
+            if x_start - 3 >= 0 and y_start + 3 < 19 and state[y_start + 3][x_start - 3] != 1:
+                score += 5000
+            if x_start + 3 < 19 and y_start - 3 >= 0 and state[y_start - 3][x_start + 3] != 1:
+                score += 5000
     if x_start - 4 >= 0 and y_start + 4 < 19:
         if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == -1\
                 and state[y_start + 4][x_start - 4] != 1:
@@ -495,6 +509,11 @@ def evaluate(node, start):
             score += 3000
     if x_start + 4 < 19 and y_start - 4 >= 0:
         if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == -1\
+                and state[y_start - 4][x_start + 4] != 1:
+            score += 3000
+    if x_start + 4 < 19 and y_start - 4 >= 0 and x_start - 1 >= 0 and y_start + 1 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start - 1][x_start + 1] \
+                == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == -1\
                 and state[y_start - 4][x_start + 4] != 1:
             score += 3000
 
