@@ -7,7 +7,6 @@ from stopit import ThreadingTimeout
 from omok import Omok, OmokState
 import user_agent
 import ai_agent
-import sample_ai_agent
 from util import random_act
 
 TIMEOUT = 5
@@ -79,7 +78,7 @@ def play_ai_vs_ai(state : OmokState, omok_ui : Omok):
             if state.turn == 1:  # 흑돌 (AI)
                 y_pos, x_pos = user_agent.act(copy.deepcopy(state))
             elif state.turn == -1:  # 백돌 (AI)
-                y_pos, x_pos = sample_ai_agent.act(copy.deepcopy(state))
+                y_pos, x_pos = ai_agent.act(copy.deepcopy(state))
 
         if context_manager.state == context_manager.TIMED_OUT:
             print("Timeout!")

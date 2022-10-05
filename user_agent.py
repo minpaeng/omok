@@ -13,7 +13,6 @@ def act(state: OmokState):
     node = (state.game_board, prev_stone)        # 노드 구성 : game_board, 이전 돌
 
     v, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), 1, None)
-    print(f'v: {v}, pos: {pos[0]} {pos[1]}')
     # v : value, pos : 돌 위치
     x_pos, y_pos = pos[0], pos[1]
 
@@ -189,7 +188,7 @@ def evaluate(node, start):
     if x_start - 4 >= 0:
         if state[y_start][x_start - 1] == state[y_start][x_start - 2] \
                 == state[y_start][x_start - 3] == state[y_start][x_start - 4] == 1:
-            score += 50000
+            score += 10000
 
     if y_start + 1 < 19:
         if state[y_start][x_start] == state[y_start + 1][x_start]:
@@ -237,7 +236,7 @@ def evaluate(node, start):
     if y_start - 4 >= 0:
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] \
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == 1:
-            score += 50000
+            score += 10000
 
     if x_start + 1 < 19 and y_start + 1 < 19:
         if state[y_start + 1][x_start + 1] == 1:
@@ -281,6 +280,34 @@ def evaluate(node, start):
     if x_start + 3 < 19 and y_start - 3 >= 0:
         if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == 1:
             score += 300
+    if x_start + 4 < 19 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == \
+                state[y_start - 3][x_start + 3] == state[y_start - 4][x_start + 4] == 1:
+            score += 10000
+    if x_start + 4 < 19 and y_start + 4 < 19:
+        if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == \
+                state[y_start + 3][x_start + 3] == state[y_start + 4][x_start + 4] == 1:
+            score += 10000
+    if x_start - 4 >= 0 and y_start + 4 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == \
+                state[y_start + 3][x_start - 3] == state[y_start + 4][x_start - 4] == 1:
+            score += 10000
+    if x_start - 4 >= 0 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == \
+                state[y_start - 3][x_start - 3] == state[y_start - 4][x_start - 4] == 1:
+            score += 10000
+    if x_start - 3 >= 0 and y_start - 3 >= 0 and x_start + 1 < 19 and y_start + 1 < 19:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == \
+                state[y_start - 3][x_start - 3] == state[y_start + 1][x_start + 1] == 1:
+            score += 10000
+    if x_start - 2 >= 0 and y_start - 2 >= 0 and x_start + 2 < 19 and y_start + 2 < 19:
+        if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == \
+                state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == 1:
+            score += 10000
+    if x_start + 2 < 19 and y_start - 2 >= 0 and x_start - 2 >= 0 and y_start + 2 < 19:
+        if state[y_start + 2][x_start - 2] == state[y_start + 1][x_start - 1] == \
+                state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == 1:
+            score += 10000
 
     # 흰 돌 견제 점수 - 검정보다 우선순위를 높게 둬야 함
     if x_start + 3 < 19:
@@ -321,7 +348,7 @@ def evaluate(node, start):
             score += 10000
 
     if y_start + 3 < 19:
-        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1:
             if y_start + 4 < 19 and state[y_start + 4][x_start] != 1:
                 score += 3000
     if y_start + 2 < 19 and y_start - 1 > 0:
@@ -361,10 +388,103 @@ def evaluate(node, start):
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == -1:
             score += 10000
 
+    # 무조건 이기는 경우? 방어
+    if y_start + 3 < 19 and x_start + 2 < 19:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] \
+                == state[y_start][x_start + 1] == state[y_start][x_start + 2] == -1:
+            score += 1000
+    if y_start - 3 >= 0 and x_start + 2 < 19:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] \
+                == state[y_start][x_start + 1] == state[y_start][x_start + 2] == -1:
+            score += 1000
+    if y_start + 3 < 19 and x_start - 2 >= 0:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] \
+                == state[y_start][x_start - 1] == state[y_start][x_start - 2] == -1:
+            score += 1000
+    if y_start - 3 >= 0 and x_start - 2 >= 0:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] \
+                == state[y_start][x_start - 1] == state[y_start][x_start - 2] == -1:
+            score += 1000
+    if y_start + 2 < 19 and x_start + 3 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] \
+                == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
+            score += 1000
+    if y_start + 2 < 19 and x_start - 3 >= 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] \
+                == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
+            score += 1000
+    if y_start - 2 >= 0 and x_start + 3 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] \
+                == state[y_start - 1][x_start] == state[y_start - 2][x_start] == -1:
+            score += 1000
+    if y_start - 2 >= 0 and x_start - 3 >= 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] \
+                == state[y_start - 1][x_start] == state[y_start - 2][x_start] == -1:
+            score += 1000
+
+    if y_start + 2 < 19 and x_start + 2 < 19:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == \
+                state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == -1:
+            score += 1000
+    if y_start + 2 < 19 and x_start - 2 >= 0:
+        if state[y_start + 1][x_start] == state[y_start + 2][x_start] == \
+                state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == -1:
+            score += 1000
+    if y_start - 2 >= 0 and x_start + 2 < 19:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == \
+                state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == -1:
+            score += 1000
+    if y_start - 2 >= 0 and x_start - 2 >= 0:
+        if state[y_start - 1][x_start] == state[y_start - 2][x_start] == \
+                state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == -1:
+            score += 1000
+    if y_start + 2 < 19 and x_start + 2 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == \
+                state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == -1:
+            score += 1000
+    if y_start + 2 < 19 and x_start - 2 >= 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == \
+                state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == -1:
+            score += 1000
+    if y_start - 2 >= 0 and x_start + 2 < 19:
+        if state[y_start][x_start + 1] == state[y_start][x_start + 2] == \
+                state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == -1:
+            score += 1000
+    if y_start - 2 >= 0 and x_start - 2 >= 0:
+        if state[y_start][x_start - 1] == state[y_start][x_start - 2] == \
+                state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == -1:
+            score += 1000
+
+    # 대각선 방어
     if x_start + 4 < 19 and y_start + 4 < 19:
         if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == state[y_start + 3][x_start + 3] == -1\
                 and state[y_start + 4][x_start + 4] != 1:
             score += 3000
+    if x_start + 3 < 19 and y_start + 3 < 19 and x_start - 1 >= 0 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == -1\
+                and state[y_start + 3][x_start + 3] != 1:
+            score += 3000
+    if x_start + 2 < 19 and y_start + 2 < 19 and x_start - 2 >= 0 and y_start - 2 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == -1\
+                and state[y_start - 2][x_start - 2] != 1:
+            score += 3000
+    if x_start + 2 < 19 and y_start + 2 < 19 and x_start - 2 >= 0 and y_start - 2 >= 0:
+        if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == state[y_start + 1][x_start + 1] == -1\
+                and state[y_start + 2][x_start + 2] != 1:
+            score += 3000
+    if x_start + 1 < 19 and y_start + 1 < 19 and x_start - 3 >= 0 and y_start - 3 >= 0:
+        if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == state[y_start + 1][x_start + 1] == -1\
+                and state[y_start - 3][x_start - 3] != 1:
+            score += 3000
+
+    if x_start + 4 < 19 and y_start + 4 < 19:
+        if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == \
+                state[y_start + 3][x_start + 3] == state[y_start + 4][x_start + 4] == -1:
+            score += 5000
+    if x_start + 2 < 19 and y_start + 2 < 19 and x_start - 2 >= 0 and y_start - 2 >= 0:
+        if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == \
+                state[y_start + 1][x_start + 1] == state[y_start + 1][x_start + 1] == -1:
+            score += 5000
     if x_start - 4 >= 0 and y_start + 4 < 19:
         if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == -1\
                 and state[y_start + 4][x_start - 4] != 1:
@@ -378,15 +498,11 @@ def evaluate(node, start):
                 and state[y_start - 4][x_start + 4] != 1:
             score += 3000
 
-    # print(score)
     return score, None
 
 
 def get_next_stones(node):
-    """
-    최근에 놓인 돌들 중심으로 -3, +3인 것
-    """
-
+    # 최근에 놓인 돌들을 중심으로 -2, +2인 위치 선택(3으로하면 timeout되는 경우가 종종 있음..)
     state = node[0]
     next_stones = set()
     cur_stone = node[1]
@@ -396,12 +512,12 @@ def get_next_stones(node):
 
     # 최근에 둔 돌
     for i in range(len(node[1])):
-        x_min = cur_stone[i][0] - 3 if cur_stone[i][0] - 3 > 0 else 0
-        x_max = cur_stone[i][0] + 3 if cur_stone[i][0] + 3 < 18 else 18
+        x_min = cur_stone[i][0] - 2 if cur_stone[i][0] - 2 > 0 else 0
+        x_max = cur_stone[i][0] + 2 if cur_stone[i][0] + 2 < 18 else 18
         x_pos = np.arange(x_min, x_max + 1)
 
-        y_min = cur_stone[i][1] - 3 if cur_stone[i][1] - 3 > 0 else 0
-        y_max = cur_stone[i][1] + 3 if cur_stone[i][1] + 3 < 18 else 18
+        y_min = cur_stone[i][1] - 2 if cur_stone[i][1] - 2 > 0 else 0
+        y_max = cur_stone[i][1] + 2 if cur_stone[i][1] + 2 < 18 else 18
         y_pos = np.arange(y_min, y_max + 1)
 
         [next_stones.add((x, y)) for x in x_pos for y in y_pos]
