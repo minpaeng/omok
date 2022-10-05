@@ -15,7 +15,7 @@ def act(state: OmokState):
     v, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), 1, None)
     # v : value, pos : 돌 위치
     x_pos, y_pos = pos[0], pos[1]
-
+    print(v)
     # 이미 돌이 놓여있다면 상하좌우 주변 빈 공간에 놓기
     if not state.is_valid_position(x_pos, y_pos):
         x_min = x_pos - 1 if x_pos - 1 > 0 else 0
@@ -466,10 +466,37 @@ def evaluate(node, start):
         if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == state[y_start + 1][x_start + 1] == -1\
                 and state[y_start - 3][x_start - 3] != 1:
             score += 3000
+    if x_start - 3 >= 0 and y_start + 3 < 19 and x_start + 1 < 19 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == -1\
+                and state[y_start + 3][x_start - 3] != 1:
+            score += 3000
+    if x_start - 2 >= 0 and y_start + 2 < 19 and x_start + 2 < 19 and y_start - 2 >= 0:
+        if state[y_start + 1][x_start - 1] == state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == -1\
+                and state[y_start + 2][x_start - 2] != 1:
+            score += 3000
+        if state[y_start - 1][x_start + 1] == state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == -1\
+                and state[y_start - 2][x_start + 2] != 1:
+            score += 3000
+    if x_start - 1 >= 0 and y_start + 1 < 19 and x_start + 3 < 19 and y_start - 3 >= 0:
+        if state[y_start - 2][x_start + 2] == state[y_start - 1][x_start + 1] == state[y_start + 1][x_start - 1] == -1\
+                and state[y_start - 3][x_start + 3] != 1:
+            score += 3000
 
     if x_start + 4 < 19 and y_start + 4 < 19:
         if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == \
                 state[y_start + 3][x_start + 3] == state[y_start + 4][x_start + 4] == -1:
+            score += 5000
+    if x_start - 4 >= 0 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == \
+                state[y_start - 3][x_start - 3] == state[y_start - 4][x_start - 4] == -1:
+            score += 5000
+    if x_start - 4 >= 0 and y_start + 4 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == \
+                state[y_start + 3][x_start - 3] == state[y_start + 4][x_start - 4] == -1:
+            score += 5000
+    if x_start + 4 < 19 and y_start - 4 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == \
+                state[y_start - 3][x_start + 3] == state[y_start - 4][x_start + 4] == -1:
             score += 5000
     if x_start + 2 < 19 and y_start + 2 < 19 and x_start - 2 >= 0 and y_start - 2 >= 0:
         if state[y_start - 2][x_start - 2] == state[y_start - 1][x_start - 1] == \
@@ -501,6 +528,15 @@ def evaluate(node, start):
         if state[y_start + 1][x_start - 1] == state[y_start - 1][x_start + 1] \
                 == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == -1\
                 and state[y_start - 4][x_start + 4] != 1:
+            score += 3000
+    if x_start - 4 >= 0 and y_start + 4 < 19:
+        if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == -1\
+                and state[y_start + 4][x_start - 4] != 1:
+            score += 3000
+    if x_start - 4 >= 0 and y_start + 4 < 19 and x_start + 1 < 19 and y_start - 1 >= 0:
+        if state[y_start - 1][x_start + 1] == state[y_start + 1][x_start - 1] \
+                == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == -1\
+                and state[y_start + 4][x_start - 4] != 1:
             score += 3000
 
     return score, None
