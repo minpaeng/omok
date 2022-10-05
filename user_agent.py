@@ -10,7 +10,7 @@ def act(state: OmokState):
         return 9, 9
 
     prev_stone = state.history[-7:]
-    node = (state.game_board, prev_stone)        # 노드 구성 : game_board, 이전 돌, cost
+    node = (state.game_board, prev_stone)        # 노드 구성 : game_board, 이전 돌
 
     v, pos = alpha_beta_search(node, DEPTH, float("-inf"), float("inf"), 1, None)
     print(f'v: {v}, pos: {pos[0]} {pos[1]}')
@@ -33,7 +33,7 @@ def act(state: OmokState):
         for x in next_stones:
             if state.is_valid_position(x[0], x[1]):
                 return x[1], x[0]
-        print("rand!2222")
+        print("random selected.")
 
         # 상하좌우에도 놓여있다면 랜덤으로 놓기
         return random_act(state)
@@ -93,261 +93,298 @@ def alpha_beta_search(node, depth, a, b, player, start):
 
 
 def evaluate(node, start):
-    # o o o   o 이런식으로 놓인 패턴일 때 빈공간 좌표의 점수를 크게 줘야 함
-    # o o o o   이런식으로 놓인 패턴(가로, 세로, 대각선 방향 모두 고려)일 때 빈공간 좌표의 점수를 크게 줘야 함
     score = 0
-    black_cnt = 0
-    white_cnt = 0
-
     state = node[0]
 
     x_start, y_start = start
     # if state[start[1]][start[0]] == 1:
     #     print("dddddddddddddddddddddddddddddd")
 
-    x_min = start[0] - 1 if start[0] - 1 > 0 else 0
-    x_max = start[0] + 1 if start[0] + 1 < 18 else 18
+    # x_min = start[0] - 1 if start[0] - 1 > 0 else 0
+    # x_max = start[0] + 1 if start[0] + 1 < 18 else 18
+    #
+    # y_min = start[1] - 1 if start[1] - 1 > 0 else 0
+    # y_max = start[1] + 1 if start[1] + 1 < 18 else 18
 
-    y_min = start[1] - 1 if start[1] - 1 > 0 else 0
-    y_max = start[1] + 1 if start[1] + 1 < 18 else 18
-
-    # 상하좌우대각선 -1, +1로 cost += 검정돌
-    looking = state[y_min:y_max + 1, x_min:x_max + 1]
-    score += len(np.where(looking == 1)[0]) * 3
+    # 상하좌우대각선 -1, +1로 검정돌 수 파악
+    # looking = state[y_min:y_max + 1, x_min:x_max + 1]
+    # score += len(np.where(looking == 1)[0]) * 50
 
     # 검정돌 점수
     if x_start + 1 < 19:
         if state[y_start][x_start] == state[y_start][x_start + 1]:
-            black_cnt += 10
+            score += 10
+            if x_start + 2 < 19 and state[y_start][x_start + 2] != -1:
+                score += 10
     if x_start - 1 >= 0:
         if state[y_start][x_start] == state[y_start][x_start - 1]:
-            black_cnt += 10
+            score += 10
+            if x_start - 2 >= 0 and state[y_start][x_start - 2] != -1:
+                score += 10
     if x_start + 2 < 19:
         if state[y_start][x_start] == state[y_start][x_start + 1] == state[y_start][x_start + 2]:
-            black_cnt += 100
+            score += 100
+            if x_start + 3 < 19 and state[y_start][x_start + 3] != -1:
+                score += 100
+            if y_start + 2 < 19 and state[y_start + 1][x_start] == state[y_start + 2][x_start]:
+                score += 100
+            if y_start - 2 < 19 and state[y_start - 1][x_start] == state[y_start - 2][x_start]:
+                score += 100
     if x_start - 2 >= 0:
         if state[y_start][x_start] == state[y_start][x_start - 1] == state[y_start][x_start - 2]:
-            black_cnt += 100
+            score += 100
+            if x_start - 3 >= 0 and state[y_start][x_start - 3] != -1:
+                score += 100
+            if y_start + 2 < 19 and state[y_start + 1][x_start] == state[y_start + 2][x_start]:
+                score += 100
+            if y_start - 2 < 19 and state[y_start - 1][x_start] == state[y_start - 2][x_start]:
+                score += 100
     if x_start + 1 < 19 and x_start - 1 > 0:
         if state[y_start][x_start] == state[y_start][x_start + 1] == state[y_start][x_start - 1]:
-            black_cnt += 100
+            score += 100
+            if x_start + 2 < 19 and state[y_start][x_start + 2] != -1:
+                score += 100
+            if x_start - 2 >= 0 and state[y_start][x_start - 2] != -1:
+                score += 100
     if x_start + 3 < 19:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] == 1:
-            black_cnt += 300
+            score += 300
+            if x_start + 4 < 19 and state[y_start][x_start + 4] != -1:
+                score += 300
     if x_start + 2 < 19 and x_start - 1 > 0:
         if state[y_start][x_start - 1] == state[y_start][x_start + 1] == state[y_start][x_start + 2] == 1:
-            black_cnt += 300
+            score += 300
+            if x_start + 3 < 19 and state[y_start][x_start + 3] != -1:
+                score += 300
+            if x_start - 2 >= 0 and state[y_start][x_start - 2] != -1:
+                score += 300
     if x_start + 1 < 19 and x_start - 2 > 0:
         if state[y_start][x_start - 2] == state[y_start][x_start - 1] == state[y_start][x_start + 1] == 1:
-            black_cnt += 300
+            score += 300
+            if x_start + 2 < 19 and state[y_start][x_start + 2] != -1:
+                score += 300
+            if x_start - 3 >= 0 and state[y_start][x_start - 3] != -1:
+                score += 10
     if x_start - 3 >= 0:
         if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] == 1:
-            black_cnt += 300
+            score += 300
+            if x_start - 4 >= 0 and state[y_start][x_start - 4] != -1:
+                score += 300
     if x_start + 4 < 19:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start + 3] == state[y_start][x_start + 4] == 1:
-            black_cnt += 50000
+            score += 50000
     if x_start + 3 < 19 and x_start - 1 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start + 3] == state[y_start][x_start - 1] == 1:
-            black_cnt += 50000
+            score += 1000
     if x_start + 2 < 19 and x_start - 2 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start - 2] == state[y_start][x_start - 1] == 1:
-            black_cnt += 50000
+            score += 1000
     if x_start + 1 < 19 and x_start - 3 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start - 3] \
                 == state[y_start][x_start - 2] == state[y_start][x_start - 1] == 1:
-            black_cnt += 50000
+            score += 1000
     if x_start - 4 >= 0:
         if state[y_start][x_start - 1] == state[y_start][x_start - 2] \
                 == state[y_start][x_start - 3] == state[y_start][x_start - 4] == 1:
-            black_cnt += 50000
+            score += 50000
 
     if y_start + 1 < 19:
         if state[y_start][x_start] == state[y_start + 1][x_start]:
-            black_cnt += 10
+            score += 10
     if y_start - 1 >= 0:
         if state[y_start][x_start] == state[y_start - 1][x_start]:
-            black_cnt += 10
+            score += 10
     if y_start + 2 < 19:
         if state[y_start][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start]:
-            black_cnt += 100
+            score += 100
     if y_start - 2 >= 0:
         if state[y_start][x_start] == state[y_start - 1][x_start] == state[y_start - 2][x_start]:
-            black_cnt += 100
+            score += 100
     if y_start + 1 < 19 and y_start - 1 > 0:
         if state[y_start][x_start] == state[y_start + 1][x_start] == state[y_start - 1][x_start]:
-            black_cnt += 100
+            score += 100
     if y_start + 3 < 19:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == 1:
-            black_cnt += 300
+            score += 300
     if y_start + 2 < 19 and y_start - 1 > 0:
         if state[y_start - 1][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start] == 1:
-            black_cnt += 300
+            score += 300
     if y_start + 1 < 19 and y_start - 2 > 0:
         if state[y_start - 2][x_start] == state[y_start - 1][x_start] == state[y_start + 1][x_start] == 1:
-            black_cnt += 300
+            score += 300
     if y_start - 3 >= 0:
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] == 1:
-            black_cnt += 300
+            score += 300
     if y_start + 4 < 19:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start + 3][x_start] == state[y_start + 4][x_start] == 1:
-            black_cnt += 50000
+            score += 50000
     if y_start + 3 < 19 and y_start - 1 > 0:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start + 3][x_start] == state[y_start - 1][x_start] == 1:
-            black_cnt += 50000
+            score += 1000
     if y_start + 2 < 19 and y_start - 2 > 0:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start - 1][x_start] == state[y_start - 2][x_start] == 1:
-            black_cnt += 50000
+            score += 1000
     if y_start + 1 < 19 and y_start - 3 > 0:
         if state[y_start + 1][x_start] == state[y_start - 3][x_start] \
                 == state[y_start - 2][x_start] == state[y_start - 1][x_start] == 1:
-            black_cnt += 50000
+            score += 1000
     if y_start - 4 >= 0:
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] \
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == 1:
-            black_cnt += 50000
+            score += 50000
 
     if x_start + 1 < 19 and y_start + 1 < 19:
         if state[y_start + 1][x_start + 1] == 1:
-            black_cnt += 10
+            score += 10
     if x_start - 1 >= 0 and y_start + 1 < 19:
         if state[y_start + 1][x_start - 1] == 1:
-            black_cnt += 10
+            score += 10
     if x_start - 1 >= 0 and y_start - 1 >= 0:
         if state[y_start - 1][x_start - 1] == 1:
-            black_cnt += 10
+            score += 10
     if x_start + 1 < 19 and y_start - 1 >= 0:
         if state[y_start - 1][x_start + 1] == 1:
-            black_cnt += 10
+            score += 10
     if x_start + 2 < 19 and y_start + 2 < 19:
         if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == 1:
-            black_cnt += 100
+            score += 100
     if x_start - 2 >= 0 and y_start + 2 < 19:
         if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == 1:
-            black_cnt += 100
+            score += 100
     if x_start - 2 >= 0 and y_start - 2 >= 0:
         if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == 1:
-            black_cnt += 100
+            score += 100
     if x_start + 2 < 19 and y_start - 2 >= 0:
         if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == 1:
-            black_cnt += 100
+            score += 100
     if x_start + 1 < 19 and y_start + 1 < 19 and x_start - 1 >= 0 and y_start - 1 >= 0:
         if state[y_start + 1][x_start + 1] == state[y_start - 1][x_start - 1] == 1:
-            black_cnt += 100
+            score += 100
     if (x_start - 1 >= 0 and y_start + 1 < 19) and (x_start + 1 < 19 and y_start - 1 >= 0):
         if state[y_start + 1][x_start - 1] == state[y_start - 1][x_start + 1] == 1:
-            black_cnt += 100
+            score += 100
     if x_start + 3 < 19 and y_start + 3 < 19:
         if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == state[y_start + 3][x_start + 3] == 1:
-            black_cnt += 300
+            score += 300
     if x_start - 3 >= 0 and y_start + 3 < 19:
         if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == 1:
-            black_cnt += 300
+            score += 300
     if x_start - 3 >= 0 and y_start - 3 >= 0:
         if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == state[y_start - 3][x_start - 3] == 1:
-            black_cnt += 300
+            score += 300
     if x_start + 3 < 19 and y_start - 3 >= 0:
         if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == 1:
-            black_cnt += 300
+            score += 300
 
     # 흰 돌 견제 점수 - 검정보다 우선순위를 높게 둬야 함
     if x_start + 3 < 19:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] == state[y_start][x_start + 3] == -1:
-            black_cnt += 3000
+            if x_start + 4 < 19 and state[y_start][x_start + 4] != 1:
+                score += 3000
     if x_start + 2 < 19 and x_start - 1 > 0:
         if state[y_start][x_start - 1] == state[y_start][x_start + 1] == state[y_start][x_start + 2] == -1:
-            black_cnt += 3000
+            if x_start + 3 < 19 and state[y_start][x_start + 3] != 1:
+                score += 3000
+            if x_start - 2 >= 0 and state[y_start][x_start - 2] != 1:
+                score += 3000
     if x_start + 1 < 19 and x_start - 2 > 0:
         if state[y_start][x_start - 2] == state[y_start][x_start - 1] == state[y_start][x_start + 1] == -1:
-            black_cnt += 3000
+            score += 3000
     if x_start - 3 >= 0:
         if state[y_start][x_start - 1] == state[y_start][x_start - 2] == state[y_start][x_start - 3] == -1:
-            black_cnt += 3000
+            score += 3000
     if x_start + 4 < 19:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start + 3] == state[y_start][x_start + 4] == -1:
-            black_cnt += 10000
+            score += 10000
     if x_start + 3 < 19 and x_start - 1 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start + 3] == state[y_start][x_start - 1] == -1:
-            black_cnt += 10000
+            score += 10000
     if x_start + 2 < 19 and x_start - 2 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start + 2] \
                 == state[y_start][x_start - 2] == state[y_start][x_start - 1] == -1:
-            black_cnt += 10000
+            score += 10000
     if x_start + 1 < 19 and x_start - 3 > 0:
         if state[y_start][x_start + 1] == state[y_start][x_start - 3] \
                 == state[y_start][x_start - 2] == state[y_start][x_start - 1] == -1:
-            black_cnt += 10000
+            score += 10000
     if x_start - 4 >= 0:
         if state[y_start][x_start - 1] == state[y_start][x_start - 2] \
                 == state[y_start][x_start - 3] == state[y_start][x_start - 4] == -1:
-            black_cnt += 10000
+            score += 10000
 
-    if y_start + 4 < 19:
-        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1\
-                and state[y_start + 4][x_start] != 1:
-            black_cnt += 3000
+    if y_start + 3 < 19:
+        if state[y_start][x_start + 1] == state[y_start + 2][x_start] == state[y_start + 3][x_start] == -1:
+            if y_start + 4 < 19 and state[y_start + 4][x_start] != 1:
+                score += 3000
     if y_start + 2 < 19 and y_start - 1 > 0:
         if state[y_start - 1][x_start] == state[y_start + 1][x_start] == state[y_start + 2][x_start] == -1:
-            black_cnt += 3000
+            if y_start + 3 < 19 and state[y_start + 3][x_start] != 1:
+                score += 3000
+            if y_start - 2 >= 0 and state[y_start - 2][x_start] != 1:
+                score += 3000
     if y_start + 1 < 19 and y_start - 2 > 0:
         if state[y_start - 2][x_start] == state[y_start - 1][x_start] == state[y_start + 1][x_start] == -1:
-            black_cnt += 3000
+            if y_start + 2 < 19 and state[y_start + 2][x_start] != 1:
+                score += 3000
+            if y_start - 3 >= 0 and state[y_start - 3][x_start] != 1:
+                score += 3000
     if y_start - 3 >= 0:
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] == state[y_start - 3][x_start] == -1:
-            black_cnt += 3000
+            if y_start - 4 < 19 and state[y_start - 4][x_start] != 1:
+                score += 3000
     if y_start + 4 < 19:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start + 3][x_start] == state[y_start + 4][x_start] == -1:
-            black_cnt += 10000
+            score += 10000
     if y_start + 3 < 19 and y_start - 1 > 0:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start + 3][x_start] == state[y_start - 1][x_start] == -1:
-            black_cnt += 10000
+            score += 10000
     if y_start + 2 < 19 and y_start - 2 > 0:
         if state[y_start + 1][x_start] == state[y_start + 2][x_start] \
                 == state[y_start - 1][x_start] == state[y_start - 2][x_start] == -1:
-            black_cnt += 10000
+            score += 10000
     if y_start + 1 < 19 and y_start - 3 > 0:
         if state[y_start + 1][x_start] == state[y_start - 3][x_start] \
                 == state[y_start - 2][x_start] == state[y_start - 1][x_start] == -1:
-            black_cnt += 10000
+            score += 10000
     if y_start - 4 >= 0:
         if state[y_start - 1][x_start] == state[y_start - 2][x_start] \
                 == state[y_start - 3][x_start] == state[y_start - 4][x_start] == -1:
-            black_cnt += 10000
+            score += 10000
 
     if x_start + 4 < 19 and y_start + 4 < 19:
         if state[y_start + 1][x_start + 1] == state[y_start + 2][x_start + 2] == state[y_start + 3][x_start + 3] == -1\
                 and state[y_start + 4][x_start + 4] != 1:
-            black_cnt += 3000
+            score += 3000
     if x_start - 4 >= 0 and y_start + 4 < 19:
         if state[y_start + 1][x_start - 1] == state[y_start + 2][x_start - 2] == state[y_start + 3][x_start - 3] == -1\
                 and state[y_start + 4][x_start - 4] != 1:
-            black_cnt += 3000
+            score += 3000
     if x_start - 4 >= 0 and y_start - 4 >= 0:
         if state[y_start - 1][x_start - 1] == state[y_start - 2][x_start - 2] == state[y_start - 3][x_start - 3] == -1\
                 and state[y_start - 4][x_start - 4] != 1:
-            black_cnt += 3000
+            score += 3000
     if x_start + 4 < 19 and y_start - 4 >= 0:
         if state[y_start - 1][x_start + 1] == state[y_start - 2][x_start + 2] == state[y_start - 3][x_start + 3] == -1\
                 and state[y_start - 4][x_start + 4] != 1:
-            black_cnt += 3000
+            score += 3000
 
-    score += (black_cnt + white_cnt)
     # print(score)
     return score, None
 
 
 def get_next_stones(node):
     """
-    최근에 놓인 돌들 중심으로 -2, +2인 것
+    최근에 놓인 돌들 중심으로 -3, +3인 것
     """
 
     state = node[0]
@@ -373,7 +410,7 @@ def get_next_stones(node):
 
     # 아예 비어있다면 랜덤으로 하나 고르기
     if next_stones == 0:
-        print("rand!")
+        print("random selected.")
         rand_x, rand_y = random_act(state)
         next_stones.add((rand_x, rand_y))
 
