@@ -43,7 +43,6 @@ def act(state: OmokState):
 def alpha_beta_search(node, depth, a, b, player, start):
     if depth == 0:  # 깊이가 0이면 탐색 종료
         return evaluate(node, start)
-        # return evaluate(node)
 
     state = node[0]
     stones = get_next_stones(node)
@@ -94,22 +93,9 @@ def alpha_beta_search(node, depth, a, b, player, start):
 def evaluate(node, start):
     score = 0
     state = node[0]
-
     x_start, y_start = start
-    # if state[start[1]][start[0]] == 1:
-    #     print("dddddddddddddddddddddddddddddd")
 
-    # x_min = start[0] - 1 if start[0] - 1 > 0 else 0
-    # x_max = start[0] + 1 if start[0] + 1 < 18 else 18
-    #
-    # y_min = start[1] - 1 if start[1] - 1 > 0 else 0
-    # y_max = start[1] + 1 if start[1] + 1 < 18 else 18
-
-    # 상하좌우대각선 -1, +1로 검정돌 수 파악
-    # looking = state[y_min:y_max + 1, x_min:x_max + 1]
-    # score += len(np.where(looking == 1)[0]) * 50
-
-    # 검정돌 점수
+    # 공격 점수
     if x_start + 1 < 19:
         if state[y_start][x_start] == state[y_start][x_start + 1]:
             score += 10
