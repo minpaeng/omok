@@ -43,7 +43,7 @@ def act(state: OmokState):
 
 def alpha_beta_search(node, depth, a, b, player, start):
     if depth == 0:  # 깊이가 0이면 탐색 종료
-        return evaluate2(node, start)
+        return evaluate(node, start)
         # return evaluate(node)
 
     state = node[0]
@@ -92,7 +92,7 @@ def alpha_beta_search(node, depth, a, b, player, start):
         return v, pos
 
 
-def evaluate2(node, start):
+def evaluate(node, start):
     # o o o   o 이런식으로 놓인 패턴일 때 빈공간 좌표의 점수를 크게 줘야 함
     # o o o o   이런식으로 놓인 패턴(가로, 세로, 대각선 방향 모두 고려)일 때 빈공간 좌표의 점수를 크게 줘야 함
     score = 0
@@ -342,40 +342,6 @@ def evaluate2(node, start):
 
     score += (black_cnt + white_cnt)
     # print(score)
-    return score, None
-
-
-def evaluate(node):
-    # o o o   o 이런식으로 놓인 패턴일 때 빈공간 좌표의 점수를 크게 줘야 함
-    # o o o o   이런식으로 놓인 패턴(가로, 세로, 대각선 방향 모두 고려)일 때 빈공간 좌표의 점수를 크게 줘야 함
-    x_pos, y_pos = node[1][0]
-    # print("pos")
-    # print(x_pos, y_pos)
-
-    state = node[0]
-    if state[y_pos][x_pos] == -1:
-        x_pos, y_pos = node[1][1]
-
-    cur_stone = state[y_pos][x_pos]
-
-    x_min = x_pos - 5 if x_pos - 5 > 0 else 0
-    x_max = x_pos + 5 if x_pos + 5 < 18 else 18
-
-    y_min = y_pos - 5 if y_pos - 5 > 0 else 0
-    y_max = y_pos + 5 if y_pos + 5 < 18 else 18
-
-    score = 1
-    for y in range(y_min + 1, y_max + 1):
-        for x in range(x_min + 1, x_max + 1):
-            if state[y][x] == cur_stone:
-                if state[y - 1][x - 1] == state[y][x]:
-                    score += 1
-                if state[y][x - 1] == state[y][x]:
-                    score += 1
-                if state[y - 1][x] == state[y][x]:
-                    score += 1
-
-    print(score)
     return score, None
 
 
